@@ -188,6 +188,7 @@ let sfxGain = null;
 let engineOscillator = null;
 let engineLfo = null;
 let engineGain = null;
+let engineFilter = null;
 let audioPrimed = false;
 let htmlAudioEnabled = false;
 let fallbackMusicStep = 0;
@@ -264,7 +265,7 @@ let selectedDifficulty = "medium";
 let activeMenuTab = "home";
 let musicEnabled = true;
 let sfxEnabled = true;
-let graphicsQuality = "low";
+let graphicsQuality = "medium";
 let pendingMysteryBoxes = 0;
 let lastMysteryReward = "";
 let forcedCoinBoxRewards = 2;
@@ -494,9 +495,9 @@ function getDifficultyConfig() {
 
 function getGraphicsPixelRatio() {
   const qualityCaps = {
-    low: isTouchDevice ? 0.62 : 0.85,
-    medium: isTouchDevice ? 0.78 : 1,
-    high: isTouchDevice ? 0.92 : 1.2
+    low: isTouchDevice ? 0.82 : 0.92,
+    medium: isTouchDevice ? 1.05 : 1.18,
+    high: isTouchDevice ? 1.2 : 1.35
   };
   return Math.min(window.devicePixelRatio, qualityCaps[graphicsQuality] ?? qualityCaps.medium);
 }
@@ -5209,9 +5210,9 @@ async function ensureAudio() {
     engineOscillator.type = "sawtooth";
     engineOscillator.frequency.value = 122;
 
-    const engineFilter = audioContext.createBiquadFilter();
+    engineFilter = audioContext.createBiquadFilter();
     engineFilter.type = "lowpass";
-    engineFilter.frequency.value = 940;
+    engineFilter.frequency.value = 1280;
 
     engineLfo = audioContext.createOscillator();
     engineLfo.type = "sine";
@@ -5323,7 +5324,7 @@ function updateAudioMix() {
   const now = audioContext.currentTime;
   const audible = !isMuted;
   const musicLevel = audible && musicEnabled ? (state === "running" ? 0.32 : 0.14) : 0.0001;
-  const engineLevel = audible && sfxEnabled && state === "running" ? 0.18 : 0.0001;
+  const engineLevel = audible && sfxEnabled && state === "running" ? 0.26 : 0.0001;
   const sfxLevel = audible && sfxEnabled ? 0.9 : 0.0001;
   masterGain.gain.cancelScheduledValues(now);
   musicGain.gain.cancelScheduledValues(now);
@@ -5333,6 +5334,11 @@ function updateAudioMix() {
   musicGain.gain.linearRampToValueAtTime(musicLevel, now + 0.12);
   sfxGain.gain.linearRampToValueAtTime(sfxLevel, now + 0.08);
   engineGain.gain.linearRampToValueAtTime(engineLevel, now + 0.1);
+  if (engineFilter) {
+    const filterFreq = state === "running" ? 1550 + Math.max(0, speed - baseSpeed) * 42 : 980;
+    engineFilter.frequency.cancelScheduledValues(now);
+    engineFilter.frequency.linearRampToValueAtTime(filterFreq, now + 0.1);
+  }
 }
 
 function playTone(frequency, duration, type, volume) {
@@ -5626,7 +5632,7 @@ function updateAudio(delta) {
 
   const now = audioContext.currentTime;
   if (state === "running") {
-    const targetFreq = 108 + speed * 5.8 + (isSliding ? -18 : 0) + Math.max(0, playerY) * 10;
+    const targetFreq = 128 + speed * 6.4 + (isSliding ? -12 : 0) + Math.max(0, playerY) * 8;
     engineOscillator.frequency.linearRampToValueAtTime(targetFreq, now + Math.max(delta, 0.02));
   }
 
@@ -5701,12 +5707,10 @@ function loadPendingMysteryBoxes() {
 function loadSettingsState() {
   musicEnabled = readStorageString("treasure-run-music-enabled", "true") !== "false";
   sfxEnabled = readStorageString("treasure-run-sfx-enabled", "true") !== "false";
-  const defaultGraphics = isTouchDevice ? "low" : "medium";
+  const defaultGraphics = isTouchDevice ? "medium" : "medium";
   const savedGraphics = readStorageString("treasure-run-graphics-quality", defaultGraphics);
   const normalizedGraphics = ["low", "medium", "high"].includes(savedGraphics) ? savedGraphics : defaultGraphics;
-  graphicsQuality = isTouchDevice
-    ? (normalizedGraphics === "high" ? "medium" : normalizedGraphics)
-    : normalizedGraphics;
+  graphicsQuality = normalizedGraphics;
 }
 
 function writeDifficultyState() {
