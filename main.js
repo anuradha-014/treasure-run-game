@@ -265,7 +265,7 @@ let selectedDifficulty = "medium";
 let activeMenuTab = "home";
 let musicEnabled = true;
 let sfxEnabled = true;
-let graphicsQuality = "medium";
+let graphicsQuality = "high";
 let pendingMysteryBoxes = 0;
 let lastMysteryReward = "";
 let forcedCoinBoxRewards = 2;
@@ -497,7 +497,7 @@ function getGraphicsPixelRatio() {
   const qualityCaps = {
     low: isTouchDevice ? 0.82 : 0.92,
     medium: isTouchDevice ? 1.05 : 1.18,
-    high: isTouchDevice ? 1.2 : 1.35
+    high: isTouchDevice ? 1.45 : 1.35
   };
   return Math.min(window.devicePixelRatio, qualityCaps[graphicsQuality] ?? qualityCaps.medium);
 }
@@ -5037,7 +5037,7 @@ function checkTreasureMode() {
 
 function getTimeScale() {
   if (treasureModeLevel >= 1 && !treasureGoldTriggered) {
-    return 0.86;
+    return isTouchDevice ? 1 : 0.86;
   }
   return 1;
 }
@@ -5088,7 +5088,9 @@ function updateCamera(delta) {
 
   camera.lookAt(player.position.x * 0.18, 1.92 + player.position.y * 0.16, -24 - zoomOffset * 2.2);
   if (state === "running") {
-    const blurStrength = THREE.MathUtils.clamp((speed - baseSpeed) * 0.012 + Math.abs(laneTilt) * 2.2, 0, 0.32);
+    const blurStrength = isTouchDevice
+      ? 0
+      : THREE.MathUtils.clamp((speed - baseSpeed) * 0.012 + Math.abs(laneTilt) * 2.2, 0, 0.32);
     stage.style.filter = `saturate(1.02) brightness(1.01) blur(${blurStrength.toFixed(2)}px)`;
   }
 }
@@ -5325,7 +5327,7 @@ function updateAudioMix() {
   const now = audioContext.currentTime;
   const audible = !isMuted;
   const musicLevel = audible && musicEnabled ? (state === "running" ? 0.32 : 0.14) : 0.0001;
-  const engineLevel = audible && sfxEnabled && state === "running" ? 0.19 : 0.0001;
+  const engineLevel = audible && sfxEnabled && state === "running" && !isTouchDevice ? 0.19 : 0.0001;
   const sfxLevel = audible && sfxEnabled ? 0.9 : 0.0001;
   masterGain.gain.cancelScheduledValues(now);
   musicGain.gain.cancelScheduledValues(now);
@@ -5708,10 +5710,12 @@ function loadPendingMysteryBoxes() {
 function loadSettingsState() {
   musicEnabled = readStorageString("treasure-run-music-enabled", "true") !== "false";
   sfxEnabled = readStorageString("treasure-run-sfx-enabled", "true") !== "false";
-  const defaultGraphics = isTouchDevice ? "medium" : "medium";
+  const defaultGraphics = isTouchDevice ? "high" : "medium";
   const savedGraphics = readStorageString("treasure-run-graphics-quality", defaultGraphics);
   const normalizedGraphics = ["low", "medium", "high"].includes(savedGraphics) ? savedGraphics : defaultGraphics;
-  graphicsQuality = normalizedGraphics;
+  graphicsQuality = isTouchDevice
+    ? (normalizedGraphics === "low" ? "high" : normalizedGraphics)
+    : normalizedGraphics;
 }
 
 function writeDifficultyState() {
