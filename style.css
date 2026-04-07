@@ -2132,46 +2132,55 @@ button:hover {
 
 @media (max-width: 768px) {
   body {
-    padding: 10px;
+    padding: 8px;
   }
 
   #game-container {
-    padding: 10px;
-    border-radius: 22px;
+    padding: 8px;
+    border-radius: 20px;
   }
 
   .hud {
-    top: 82px;
-    left: 10px;
+    top: 76px;
+    left: 8px;
     right: auto;
-    width: 86px;
+    width: 74px;
+    gap: 6px;
   }
 
   .top-actions {
-    top: 12px;
-    left: 12px;
-    right: 12px;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    gap: 6px;
   }
 
   .hud-chip {
     min-width: 0;
-    padding: 8px 9px;
+    padding: 7px 8px;
+    border-radius: 14px;
+    backdrop-filter: none;
+    box-shadow:
+      0 8px 16px rgba(20, 14, 37, 0.18),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
   }
 
   .active-rewards {
-    top: 144px;
-    left: 14px;
-    right: 14px;
-    gap: 8px;
+    top: 132px;
+    left: 12px;
+    right: 12px;
+    gap: 6px;
   }
 
   .reward-pill {
-    font-size: 0.76rem;
-    padding: 8px 12px;
+    font-size: 0.7rem;
+    padding: 7px 11px;
   }
 
   .hud-chip strong {
-    font-size: 0.95rem;
+    margin-top: 2px;
+    font-size: 0.88rem;
+    padding-right: 18px;
   }
 
   #game-stage {
@@ -2202,21 +2211,103 @@ button:hover {
     right: 12px;
     bottom: 84px;
   }
+
+  .quick-reward-bar {
+    top: 78px;
+    right: 2px;
+  }
+
+  .quick-reward-panel {
+    width: 70px;
+    padding: 5px 3px;
+    border-radius: 14px;
+    gap: 5px;
+    box-shadow: 0 12px 22px rgba(0, 0, 0, 0.2);
+  }
+
+  .quick-reward-title {
+    font-size: 0.5rem;
+  }
+
+  .quick-reward-button {
+    width: 62px;
+    min-height: 66px;
+    padding: 5px 3px 4px;
+    border-radius: 12px;
+    grid-template-rows: 34px minmax(14px, auto);
+    gap: 4px;
+  }
+
+  .quick-reward-button .shop-reward-preview {
+    margin: -27px auto -22px;
+    transform: scale(0.36);
+  }
+
+  .quick-reward-name {
+    font-size: 0.42rem;
+    min-height: 16px;
+  }
+
+  .quick-reward-count {
+    min-width: 15px;
+    height: 15px;
+    font-size: 0.52rem;
+  }
+
+  .top-actions .control-button {
+    min-height: 40px;
+    padding: 9px 12px;
+    font-size: 0.9rem;
+  }
 }
 
 @media (max-width: 520px) {
   .hud {
-    top: 80px;
-    left: 8px;
-    width: 82px;
+    top: 74px;
+    left: 6px;
+    width: 68px;
   }
 
   .hud-label {
-    font-size: 0.52rem;
+    font-size: 0.46rem;
+    letter-spacing: 0.11em;
   }
 
   .hud-chip strong {
-    font-size: 0.92rem;
+    font-size: 0.82rem;
+  }
+
+  .hud-chip::after {
+    top: 7px;
+    right: 7px;
+    width: 17px;
+    height: 17px;
+    font-size: 0.52rem;
+  }
+
+  .quick-reward-bar {
+    top: 74px;
+    right: 1px;
+  }
+
+  .quick-reward-panel {
+    width: 64px;
+    border-radius: 12px;
+  }
+
+  .quick-reward-button {
+    width: 56px;
+    min-height: 60px;
+    border-radius: 11px;
+  }
+
+  .quick-reward-button .shop-reward-preview {
+    transform: scale(0.33);
+    margin: -29px auto -24px;
+  }
+
+  .quick-reward-name {
+    font-size: 0.39rem;
   }
 
   .menu-tab-bar {
