@@ -5207,19 +5207,20 @@ async function ensureAudio() {
     masterGain.connect(audioContext.destination);
 
     engineOscillator = audioContext.createOscillator();
-    engineOscillator.type = "sawtooth";
-    engineOscillator.frequency.value = 122;
+    engineOscillator.type = "triangle";
+    engineOscillator.frequency.value = 118;
 
     engineFilter = audioContext.createBiquadFilter();
     engineFilter.type = "lowpass";
-    engineFilter.frequency.value = 1280;
+    engineFilter.frequency.value = 1120;
+    engineFilter.Q.value = 0.8;
 
     engineLfo = audioContext.createOscillator();
     engineLfo.type = "sine";
-    engineLfo.frequency.value = 4.2;
+    engineLfo.frequency.value = 2.4;
 
     const lfoGain = audioContext.createGain();
-    lfoGain.gain.value = 18;
+    lfoGain.gain.value = 6;
 
     engineLfo.connect(lfoGain);
     lfoGain.connect(engineOscillator.frequency);
@@ -5324,7 +5325,7 @@ function updateAudioMix() {
   const now = audioContext.currentTime;
   const audible = !isMuted;
   const musicLevel = audible && musicEnabled ? (state === "running" ? 0.32 : 0.14) : 0.0001;
-  const engineLevel = audible && sfxEnabled && state === "running" ? 0.26 : 0.0001;
+  const engineLevel = audible && sfxEnabled && state === "running" ? 0.19 : 0.0001;
   const sfxLevel = audible && sfxEnabled ? 0.9 : 0.0001;
   masterGain.gain.cancelScheduledValues(now);
   musicGain.gain.cancelScheduledValues(now);
@@ -5335,7 +5336,7 @@ function updateAudioMix() {
   sfxGain.gain.linearRampToValueAtTime(sfxLevel, now + 0.08);
   engineGain.gain.linearRampToValueAtTime(engineLevel, now + 0.1);
   if (engineFilter) {
-    const filterFreq = state === "running" ? 1550 + Math.max(0, speed - baseSpeed) * 42 : 980;
+    const filterFreq = state === "running" ? 1180 + Math.max(0, speed - baseSpeed) * 28 : 920;
     engineFilter.frequency.cancelScheduledValues(now);
     engineFilter.frequency.linearRampToValueAtTime(filterFreq, now + 0.1);
   }
@@ -5632,7 +5633,7 @@ function updateAudio(delta) {
 
   const now = audioContext.currentTime;
   if (state === "running") {
-    const targetFreq = 128 + speed * 6.4 + (isSliding ? -12 : 0) + Math.max(0, playerY) * 8;
+    const targetFreq = 112 + speed * 4.9 + (isSliding ? -8 : 0) + Math.max(0, playerY) * 5;
     engineOscillator.frequency.linearRampToValueAtTime(targetFreq, now + Math.max(delta, 0.02));
   }
 
