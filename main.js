@@ -497,7 +497,7 @@ function getGraphicsPixelRatio() {
   const qualityCaps = {
     low: isTouchDevice ? 0.82 : 0.92,
     medium: isTouchDevice ? 1.05 : 1.18,
-    high: isTouchDevice ? 1.45 : 1.35
+    high: isTouchDevice ? 1.18 : 1.35
   };
   return Math.min(window.devicePixelRatio, qualityCaps[graphicsQuality] ?? qualityCaps.medium);
 }
@@ -5074,22 +5074,25 @@ function updateTreasureMode(delta) {
 }
 
 function triggerScreenShake(duration, strength) {
+  if (isTouchDevice) {
+    return;
+  }
   screenShakeTimer = Math.max(screenShakeTimer, duration);
   screenShakeStrength = Math.max(screenShakeStrength, strength);
 }
 
 function updateCamera(delta) {
   const zoomOffset = THREE.MathUtils.clamp((speed - baseSpeed) * 0.06, 0, 1.2);
-  const lateralDrift = Math.sin(distance * 0.032) * 0.08;
+  const lateralDrift = isTouchDevice ? 0 : Math.sin(distance * 0.032) * 0.08;
   const desiredX = player.position.x * 0.36 + lateralDrift;
-  const desiredY = cameraBase.y + player.position.y * 0.22 + zoomOffset * 0.14 + Math.sin(distance * 0.048) * 0.04;
-  const desiredZ = cameraBase.z - zoomOffset * 0.45 + Math.cos(distance * 0.026) * 0.03;
+  const desiredY = cameraBase.y + player.position.y * 0.22 + zoomOffset * 0.14 + (isTouchDevice ? 0 : Math.sin(distance * 0.048) * 0.04);
+  const desiredZ = cameraBase.z - zoomOffset * 0.45 + (isTouchDevice ? 0 : Math.cos(distance * 0.026) * 0.03);
 
   camera.position.x = THREE.MathUtils.damp(camera.position.x, desiredX, 4.8, delta);
   camera.position.y = THREE.MathUtils.damp(camera.position.y, desiredY, 4.8, delta);
   camera.position.z = THREE.MathUtils.damp(camera.position.z, desiredZ, 4.8, delta);
 
-  const laneTilt = (targetLane - player.position.x) * -0.038;
+  const laneTilt = isTouchDevice ? 0 : (targetLane - player.position.x) * -0.038;
   camera.rotation.z = THREE.MathUtils.damp(camera.rotation.z, laneTilt, 5, delta);
 
   if (screenShakeTimer > 0) {
@@ -5115,7 +5118,7 @@ function updateGame(delta) {
   const scoreRate = doubleCoinsTimer > 0 ? 1.45 : 1;
   score += (delta * 14 + coinCount * 0.03) * scoreRate;
 
-  if (speed > 24) {
+  if (!isTouchDevice && speed > 24) {
     triggerScreenShake(0.03, 0.012);
   }
 
