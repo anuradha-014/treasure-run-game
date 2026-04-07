@@ -2135,7 +2135,7 @@ function syncMediaAudio() {
   bgMusic.volume = isMuted || !musicEnabled ? 0 : (state === "running"
     ? (isTouchDevice ? 0.42 : 0.55)
     : (isTouchDevice ? 0.2 : 0.28));
-  if (isMuted || !musicEnabled || state === "ready" || state === "gameover") {
+  if (isTouchDevice || isMuted || !musicEnabled || state === "ready" || state === "gameover") {
     bgMusic.pause();
     return;
   }
@@ -5389,6 +5389,12 @@ function playTone(frequency, duration, type, volume) {
 }
 
 function playCoinSound(value) {
+  if (isTouchDevice) {
+    playTone(880, 0.045, "triangle", value > 10 ? 0.05 : 0.042);
+    playTone(value > 10 ? 1260 : 1090, 0.08, "sine", value > 10 ? 0.03 : 0.026);
+    playMediaSound("coin", value > 10 ? 1 : 0.95);
+    return;
+  }
   if (playMediaSound("coin", value > 10 ? 1 : 0.92)) {
     return;
   }
