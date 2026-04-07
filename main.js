@@ -2132,7 +2132,9 @@ function syncMediaAudio() {
     return;
   }
 
-  bgMusic.volume = isMuted || !musicEnabled ? 0 : (state === "running" ? 0.55 : 0.28);
+  bgMusic.volume = isMuted || !musicEnabled ? 0 : (state === "running"
+    ? (isTouchDevice ? 0.42 : 0.55)
+    : (isTouchDevice ? 0.2 : 0.28));
   if (isMuted || !musicEnabled || state === "ready" || state === "gameover") {
     bgMusic.pause();
     return;
@@ -5341,7 +5343,7 @@ function updateAudioMix() {
   const audible = !isMuted;
   const musicLevel = audible && musicEnabled ? (state === "running" ? 0.32 : 0.14) : 0.0001;
   const engineLevel = 0.0001;
-  const sfxLevel = audible && sfxEnabled ? 0.9 : 0.0001;
+  const sfxLevel = audible && sfxEnabled ? 1 : 0.0001;
   masterGain.gain.cancelScheduledValues(now);
   musicGain.gain.cancelScheduledValues(now);
   sfxGain.gain.cancelScheduledValues(now);
@@ -5384,7 +5386,7 @@ function playTone(frequency, duration, type, volume) {
 }
 
 function playCoinSound(value) {
-  if (playMediaSound("coin", value > 10 ? 0.9 : 0.75)) {
+  if (playMediaSound("coin", value > 10 ? 1 : 0.92)) {
     return;
   }
   playTone(760, 0.05, "triangle", 0.03);
@@ -5650,6 +5652,10 @@ function updateAudio(delta) {
   if (state === "running" && !isTouchDevice) {
     const targetFreq = 112 + speed * 4.9 + (isSliding ? -8 : 0) + Math.max(0, playerY) * 5;
     engineOscillator.frequency.linearRampToValueAtTime(targetFreq, now + Math.max(delta, 0.02));
+  }
+
+  if (isTouchDevice) {
+    return;
   }
 
   const beatLength = 0.22;
