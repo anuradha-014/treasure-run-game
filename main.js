@@ -642,7 +642,8 @@ function createWorld() {
   rightCurb.position.x = 6.32;
   scene.add(rightCurb);
 
-  for (let i = 0; i < 30; i += 1) {
+  const stripeCount = isTouchDevice ? 22 : 30;
+  for (let i = 0; i < stripeCount; i += 1) {
     const stripeMaterial = new THREE.MeshStandardMaterial({
       color: 0xf5efe2,
       emissive: 0xffffff,
@@ -661,7 +662,8 @@ function createWorld() {
     scene.add(rightStripe);
   }
 
-  for (let i = 0; i < 14; i += 1) {
+  const worldBlockCount = isTouchDevice ? 10 : 14;
+  for (let i = 0; i < worldBlockCount; i += 1) {
     addBuilding(-11.5, -10 - i * 13, i);
     addBuilding(11.5, -16 - i * 13, i + 2);
     addTree(-6.4, -8 - i * 13);
@@ -1963,7 +1965,7 @@ function resetGame() {
   displayedScore = 0;
   coinCount = 0;
   displayedCoins = 0;
-  speed = baseSpeed * difficulty.speedMultiplier;
+  speed = baseSpeed * difficulty.speedMultiplier * (isTouchDevice ? 1.08 : 1);
   distance = 0;
   treasureSlowTriggered = false;
   treasureGoldTriggered = false;
@@ -2749,6 +2751,9 @@ function updatePlayer(delta) {
 }
 
 function spawnTrail(delta) {
+  if (isTouchDevice) {
+    return;
+  }
   if (trailSegments.length > 8 || state !== "running") {
     return;
   }
@@ -3077,6 +3082,13 @@ function updateSpawns(delta) {
 
 function updateTrafficSystem(delta) {
   if (state !== "running") {
+    return;
+  }
+
+  if (isTouchDevice) {
+    for (let i = trafficCars.length - 1; i >= 0; i -= 1) {
+      recycleTrafficCar(trafficCars[i], i);
+    }
     return;
   }
 
@@ -4972,8 +4984,9 @@ function spawnCoinBurst(position, color) {
 }
 
 function updateParticles(delta) {
-  if (particles.length > 42) {
-    const overflow = particles.length - 42;
+  const particleCap = isTouchDevice ? 14 : 42;
+  if (particles.length > particleCap) {
+    const overflow = particles.length - particleCap;
     for (let i = 0; i < overflow; i += 1) {
       const removed = particles.shift();
       if (removed) {
@@ -5096,7 +5109,7 @@ function updateCamera(delta) {
 }
 
 function updateGame(delta) {
-  speed = Math.min(28.5, speed + delta * 0.26);
+  speed = Math.min(isTouchDevice ? 30.5 : 28.5, speed + delta * (isTouchDevice ? 0.3 : 0.26));
   const scoreRate = doubleCoinsTimer > 0 ? 1.45 : 1;
   score += (delta * 14 + coinCount * 0.03) * scoreRate;
 
@@ -5590,7 +5603,7 @@ function playHtmlTone(frequency, duration, type, volume) {
 }
 
 function updateFallbackMusic() {
-  if (!htmlAudioEnabled || state !== "running") {
+  if (!htmlAudioEnabled || state !== "running" || isTouchDevice) {
     return;
   }
 
