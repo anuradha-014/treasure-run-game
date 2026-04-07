@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Treasure Run Adventure</title>
+  <link rel="icon" type="image/jpeg" href="./assets/app-icon.jpg?v=20260406a">
+  <link rel="shortcut icon" href="./assets/app-icon.jpg?v=20260406a">
+  <link rel="stylesheet" href="style.css?v=20260404e">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "./node_modules/three/build/three.module.js",
+        "three/addons/": "./node_modules/three/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <main class="app-shell">
+    <section class="hero-copy">
+      <p class="eyebrow">3D Endless Runner Updated</p>
+      <img class="game-logo" src="./assets/treasure-run-logo.svg" alt="Treasure Run Adventure logo">
+      <h1 class="sr-only">Treasure Run Adventure</h1>
+      <p class="subtitle">Swipe through traffic, grab floating coins, and chase treasure bonuses on a bright city road. Vehicle and building pass active.</p>
+    </section>
+
+    <section id="game-container">
+      <div class="top-actions">
+        <button id="open-shop-button" class="icon-button" type="button">Shop</button>
+        <button id="pause-button" class="icon-button" type="button">Pause</button>
+        <button id="mute-button" class="icon-button" type="button">Sound On</button>
+      </div>
+
+      <div class="hud">
+        <div class="hud-chip">
+          <span class="hud-label">Score</span>
+          <strong id="score-value" class="animated-value">0</strong>
+        </div>
+        <div class="hud-chip">
+          <span class="hud-label">Coins</span>
+          <strong id="coin-value" class="animated-value">0</strong>
+        </div>
+        <div class="hud-chip">
+          <span class="hud-label">Speed</span>
+          <strong id="speed-value" class="animated-value">18.0x</strong>
+        </div>
+        <div class="hud-chip">
+          <span class="hud-label">Best</span>
+          <strong id="best-value" class="animated-value">0</strong>
+        </div>
+        <div class="hud-chip">
+          <span class="hud-label">Wallet</span>
+          <strong id="wallet-value" class="animated-value">0</strong>
+        </div>
+      </div>
+      <div id="active-rewards" class="active-rewards hidden" aria-live="polite"></div>
+      <div id="quick-reward-bar" class="quick-reward-bar hidden" aria-live="polite"></div>
+
+      <div id="bonus-banner" class="bonus-banner hidden">Treasure Bonus +250</div>
+      <div id="treasure-banner" class="treasure-banner hidden">Treasure Mode</div>
+      <div id="golden-flash" class="golden-flash hidden"></div>
+      <div id="game-stage" aria-label="Treasure Run Adventure 3D game">
+        <div id="stage-status" class="stage-status">Loading 3D scene...</div>
+      </div>
+      <div id="score-pop-layer" class="score-pop-layer" aria-hidden="true"></div>
+
+      <div id="start-screen" class="overlay-card">
+        <div class="menu-hero-panel">
+          <div class="menu-hero-orb menu-hero-orb-a" aria-hidden="true"></div>
+          <div class="menu-hero-orb menu-hero-orb-b" aria-hidden="true"></div>
+          <p class="game-over-tag">Game Home</p>
+          <div class="menu-title-lockup">
+            <span class="menu-title-kicker">City Run Premium Lobby</span>
+            <h2>Ready For Treasure?</h2>
+          </div>
+        </div>
+        <p class="overlay-copy">Set your run difficulty, review your rewards, check your wallet, and then start the run like a proper endless runner lobby.</p>
+        <div class="menu-tab-bar" role="tablist" aria-label="Game menu">
+          <button class="menu-tab-button active" data-menu-tab="home" type="button">Home</button>
+          <button class="menu-tab-button" data-menu-tab="shop" type="button">Shop</button>
+          <button class="menu-tab-button" data-menu-tab="inventory" type="button">Inventory</button>
+          <button class="menu-tab-button" data-menu-tab="settings" type="button">Settings</button>
+        </div>
+        <div class="menu-panels">
+          <div class="menu-panel" data-menu-panel="home">
+            <div class="shop-panel featured-reward-panel">
+              <p class="shop-title">Featured Rewards</p>
+              <div id="featured-reward-strip" class="featured-reward-strip" aria-live="polite"></div>
+            </div>
+            <div class="menu-summary-grid">
+              <div class="menu-summary-card">
+                <span class="menu-summary-label">Wallet</span>
+                <strong id="menu-wallet-value">0</strong>
+              </div>
+              <div class="menu-summary-card">
+                <span class="menu-summary-label">Best Score</span>
+                <strong id="menu-best-value">0</strong>
+              </div>
+              <div class="menu-summary-card">
+                <span class="menu-summary-label">Last Run Coins</span>
+                <strong id="menu-last-coins-value">0</strong>
+              </div>
+              <div class="menu-summary-card">
+                <span class="menu-summary-label">Last Run Score</span>
+                <strong id="menu-queued-rewards-value">0</strong>
+              </div>
+            </div>
+            <div class="overlay-stats">
+              <span>Swipe or tap controls on mobile</span>
+              <span>Arrow keys / WASD on desktop</span>
+              <span>Coin milestones give instant wallet rewards</span>
+            </div>
+          </div>
+          <div class="menu-panel hidden" data-menu-panel="shop">
+            <div class="shop-panel">
+              <p class="shop-title">Reward Shop (Queue for Next Run)</p>
+              <p id="shop-wallet" class="shop-wallet">Wallet: 0 coins</p>
+              <div class="shop-grid">
+                <button class="shop-button shop-buy-button" id="buy-shield" data-reward="shield" data-label="Shield" type="button">Shield 40</button>
+                <button class="shop-button shop-buy-button" id="buy-magnet" data-reward="magnet" data-label="Magnet" type="button">Magnet 45</button>
+                <button class="shop-button shop-buy-button" id="buy-boots" data-reward="jump-boots" data-label="Boots" type="button">Boots 35</button>
+                <button class="shop-button shop-buy-button" id="buy-double" data-reward="double-coins" data-label="2x Coins" type="button">2x Coins 55</button>
+                <button class="shop-button shop-buy-button" id="buy-box" data-reward="treasure-box" data-label="Box" type="button">Box 60</button>
+              </div>
+            </div>
+          </div>
+          <div class="menu-panel hidden" data-menu-panel="inventory">
+            <div class="shop-panel">
+              <p class="shop-title">Your Reward Loadout</p>
+              <p id="menu-reward-summary" class="shop-wallet">No emergency rewards queued yet.</p>
+              <div id="menu-inventory-list" class="menu-inventory-list" aria-live="polite"></div>
+            </div>
+          </div>
+          <div class="menu-panel hidden" data-menu-panel="settings">
+            <div class="shop-panel difficulty-panel">
+              <p class="shop-title">Run Difficulty</p>
+              <div class="difficulty-selector" role="group" aria-label="Run difficulty">
+                <button class="difficulty-button" data-difficulty="easy" type="button">Easy</button>
+                <button class="difficulty-button" data-difficulty="medium" type="button">Medium</button>
+                <button class="difficulty-button" data-difficulty="hard" type="button">Hard</button>
+              </div>
+              <p id="difficulty-status" class="difficulty-status">Balanced pacing with fair coin runs and clean jump arcs.</p>
+            </div>
+            <div class="shop-panel">
+              <p class="shop-title">Sound and Controls</p>
+              <p id="audio-status" class="audio-status">Audio locked. Tap enable first in Edge.</p>
+              <div class="settings-group">
+                <div class="settings-row">
+                  <span class="settings-label">Music</span>
+                  <button id="toggle-music-button" class="settings-toggle-button" type="button">On</button>
+                </div>
+                <div class="settings-row">
+                  <span class="settings-label">SFX</span>
+                  <button id="toggle-sfx-button" class="settings-toggle-button" type="button">On</button>
+                </div>
+                <div class="settings-row settings-row-stack">
+                  <span class="settings-label">Graphics Quality</span>
+                  <div class="graphics-quality-group" role="group" aria-label="Graphics quality">
+                    <button class="graphics-quality-button" data-graphics-quality="low" type="button">Low</button>
+                    <button class="graphics-quality-button" data-graphics-quality="medium" type="button">Medium</button>
+                    <button class="graphics-quality-button" data-graphics-quality="high" type="button">High</button>
+                  </div>
+                </div>
+              </div>
+              <div class="overlay-stats compact-stats">
+                <span>Swipe or tap for movement on mobile</span>
+                <span>Arrow keys or WASD on desktop</span>
+                <span>Use emergency rewards from the run screen</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="menu-action-grid">
+          <button id="start-button" class="menu-start-button" type="button">Start Game</button>
+        </div>
+      </div>
+
+      <div id="pause-screen" class="overlay-card hidden">
+        <p class="game-over-tag">Paused</p>
+        <h2>Catch Your Breath</h2>
+        <p class="overlay-copy">Resume when you are ready to hit the road again.</p>
+        <button id="resume-button" type="button">Resume Run</button>
+        <button id="pause-shop-button" type="button">Open Shop</button>
+        <button id="pause-home-button" type="button">Back To Home</button>
+      </div>
+
+      <div id="shop-screen" class="overlay-card hidden">
+        <div class="shop-header">
+          <div>
+            <p class="game-over-tag">Shop</p>
+            <h2>Run Upgrades</h2>
+          </div>
+          <div class="shop-header-wallet">
+            <span class="menu-summary-label">Wallet</span>
+            <strong id="shop-wallet-hero">0</strong>
+          </div>
+        </div>
+        <p class="overlay-copy">Buy power-ups with wallet coins and they will spawn in your next run.</p>
+        <div class="shop-panel">
+          <p class="shop-title">Inventory Shop</p>
+          <p id="shop-wallet-modal" class="shop-wallet">Wallet: 0 coins</p>
+          <div class="shop-grid">
+            <button class="shop-button shop-buy-button" data-reward="shield" data-label="Shield" type="button">Shield 40</button>
+            <button class="shop-button shop-buy-button" data-reward="magnet" data-label="Magnet" type="button">Magnet 45</button>
+            <button class="shop-button shop-buy-button" data-reward="jump-boots" data-label="Boots" type="button">Boots 35</button>
+            <button class="shop-button shop-buy-button" data-reward="double-coins" data-label="2x Coins" type="button">2x Coins 55</button>
+            <button class="shop-button shop-buy-button" data-reward="treasure-box" data-label="Box" type="button">Box 60</button>
+          </div>
+        </div>
+        <button id="close-shop-button" type="button">Close Shop</button>
+      </div>
+
+      <div class="controls-hint hidden" aria-hidden="true">
+        <span>Swipe: left / right / up / down</span>
+        <span>Keyboard: arrows, WASD, P for pause</span>
+      </div>
+
+      <div class="touch-controls hidden" aria-hidden="true">
+        <button id="control-left" class="touch-button" type="button" aria-label="Move Left">&#9664;</button>
+        <button id="control-jump" class="touch-button primary" type="button" aria-label="Jump">&#9650;</button>
+        <button id="control-right" class="touch-button" type="button" aria-label="Move Right">&#9654;</button>
+        <button id="control-slide" class="touch-button wide" type="button" aria-label="Slide">&#9660;</button>
+      </div>
+
+      <div id="game-over-screen" class="hidden">
+        <p class="game-over-tag">Run Ended</p>
+        <h2>Treasure Lost</h2>
+        <div id="game-over-runner-stage" class="game-over-runner-stage" aria-hidden="true">
+          <div class="game-over-runner-backdrop">
+            <span class="game-over-runner-glow game-over-runner-glow-a"></span>
+            <span class="game-over-runner-glow game-over-runner-glow-b"></span>
+          </div>
+        </div>
+        <p id="final-score"></p>
+        <p id="final-coins"></p>
+        <p id="final-best"></p>
+        <div id="mystery-box-panel" class="mystery-box-panel hidden">
+          <p class="shop-title">Mystery Box Reward</p>
+          <button id="open-mystery-box-button" class="mystery-box-button" type="button">
+            <span class="mystery-box-art" aria-hidden="true"></span>
+            <span class="mystery-box-button-copy">
+              <span id="mystery-box-button-label">Open Mystery Box</span>
+              <span id="mystery-box-button-count" class="mystery-box-count">x0</span>
+            </span>
+          </button>
+          <div id="mystery-box-result" class="mystery-box-result hidden" aria-live="polite"></div>
+        </div>
+        <button id="restart-button">Restart Run</button>
+        <button id="game-over-home-button" type="button">Back To Home</button>
+      </div>
+    </section>
+  </main>
+  <script type="module" src="main.js?v=20260405g"></script>
+</body>
+</html>

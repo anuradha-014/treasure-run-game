@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Audio Test</title>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(180deg, #fff3cf, #f7c56e);
+      font-family: "Segoe UI", sans-serif;
+      color: #1d2440;
+    }
+
+    .card {
+      width: min(520px, calc(100% - 32px));
+      padding: 28px;
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 18px 40px rgba(94, 54, 0, 0.18);
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: 2rem;
+    }
+
+    p {
+      line-height: 1.5;
+    }
+
+    .row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin: 18px 0;
+    }
+
+    button {
+      padding: 12px 18px;
+      border: none;
+      border-radius: 999px;
+      font-weight: 700;
+      cursor: pointer;
+      color: white;
+      background: linear-gradient(180deg, #ffb400, #ff7b1f);
+    }
+
+    audio {
+      width: 100%;
+      margin-top: 14px;
+    }
+
+    #status {
+      margin-top: 14px;
+      font-weight: 700;
+      color: #7a3e00;
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>Audio Test</h1>
+    <p>Is page mein sirf real WAV files play hongi. Agar yahan sound aa jaye aur game mein na aaye, to issue game logic side hai. Agar yahan bhi na aaye, to Edge/site playback issue hai.</p>
+    <div class="row">
+      <button id="play-enable" type="button">Play Enable</button>
+      <button id="play-coin" type="button">Play Coin</button>
+      <button id="play-jump" type="button">Play Jump</button>
+      <button id="play-crash" type="button">Play Crash</button>
+      <button id="play-music" type="button">Play Music Loop</button>
+      <button id="stop-music" type="button">Stop Music</button>
+    </div>
+    <audio id="player" controls preload="auto"></audio>
+    <p id="status">Ready.</p>
+  </main>
+
+  <script>
+    const files = {
+      enable: "./assets/audio/enable.wav",
+      coin: "./assets/audio/coin.wav",
+      jump: "./assets/audio/jump.wav",
+      crash: "./assets/audio/crash.wav",
+      music: "./assets/audio/music-loop.wav"
+    };
+
+    const player = document.getElementById("player");
+    const status = document.getElementById("status");
+
+    function playFile(path, loop = false) {
+      player.pause();
+      player.currentTime = 0;
+      player.src = path;
+      player.loop = loop;
+      player.play()
+        .then(() => {
+          status.textContent = `Playing: ${path.split("/").pop()}`;
+        })
+        .catch((error) => {
+          console.error(error);
+          status.textContent = `Playback failed: ${error.message}`;
+        });
+    }
+
+    document.getElementById("play-enable").addEventListener("click", () => playFile(files.enable));
+    document.getElementById("play-coin").addEventListener("click", () => playFile(files.coin));
+    document.getElementById("play-jump").addEventListener("click", () => playFile(files.jump));
+    document.getElementById("play-crash").addEventListener("click", () => playFile(files.crash));
+    document.getElementById("play-music").addEventListener("click", () => playFile(files.music, true));
+    document.getElementById("stop-music").addEventListener("click", () => {
+      player.pause();
+      player.currentTime = 0;
+      status.textContent = "Music stopped.";
+    });
+  </script>
+</body>
+</html>
