@@ -1965,7 +1965,7 @@ function resetGame() {
   displayedScore = 0;
   coinCount = 0;
   displayedCoins = 0;
-  speed = baseSpeed * difficulty.speedMultiplier * (isTouchDevice ? 1.08 : 1);
+  speed = baseSpeed * difficulty.speedMultiplier * (isTouchDevice ? 1.15 : 1);
   distance = 0;
   treasureSlowTriggered = false;
   treasureGoldTriggered = false;
@@ -3063,7 +3063,7 @@ function updateSpawns(delta) {
     }
   }
 
-  const maxObstacleCount = 42;
+  const maxObstacleCount = isTouchDevice ? 30 : 42;
   if (obstacleSpawnDelay <= 0 && obstacles.length < maxObstacleCount) {
     spawnObstacleSet(-82 - THREE.MathUtils.randFloat(0, 18));
     const minDelay = treasureModeLevel >= 1
@@ -5109,7 +5109,7 @@ function updateCamera(delta) {
 }
 
 function updateGame(delta) {
-  speed = Math.min(isTouchDevice ? 30.5 : 28.5, speed + delta * (isTouchDevice ? 0.3 : 0.26));
+  speed = Math.min(isTouchDevice ? 32 : 28.5, speed + delta * (isTouchDevice ? 0.34 : 0.26));
   const scoreRate = doubleCoinsTimer > 0 ? 1.45 : 1;
   score += (delta * 14 + coinCount * 0.03) * scoreRate;
 
@@ -5340,7 +5340,7 @@ function updateAudioMix() {
   const now = audioContext.currentTime;
   const audible = !isMuted;
   const musicLevel = audible && musicEnabled ? (state === "running" ? 0.32 : 0.14) : 0.0001;
-  const engineLevel = audible && sfxEnabled && state === "running" && !isTouchDevice ? 0.19 : 0.0001;
+  const engineLevel = 0.0001;
   const sfxLevel = audible && sfxEnabled ? 0.9 : 0.0001;
   masterGain.gain.cancelScheduledValues(now);
   musicGain.gain.cancelScheduledValues(now);
@@ -5350,7 +5350,7 @@ function updateAudioMix() {
   musicGain.gain.linearRampToValueAtTime(musicLevel, now + 0.12);
   sfxGain.gain.linearRampToValueAtTime(sfxLevel, now + 0.08);
   engineGain.gain.linearRampToValueAtTime(engineLevel, now + 0.1);
-  if (engineFilter) {
+  if (engineFilter && engineLevel > 0.001) {
     const filterFreq = state === "running" ? 1180 + Math.max(0, speed - baseSpeed) * 28 : 920;
     engineFilter.frequency.cancelScheduledValues(now);
     engineFilter.frequency.linearRampToValueAtTime(filterFreq, now + 0.1);
@@ -5647,7 +5647,7 @@ function updateAudio(delta) {
   }
 
   const now = audioContext.currentTime;
-  if (state === "running") {
+  if (state === "running" && !isTouchDevice) {
     const targetFreq = 112 + speed * 4.9 + (isSliding ? -8 : 0) + Math.max(0, playerY) * 5;
     engineOscillator.frequency.linearRampToValueAtTime(targetFreq, now + Math.max(delta, 0.02));
   }
